@@ -1,6 +1,7 @@
 import joi from 'joi'
 import { UserBodyData, UserSignInBodyData } from '../types/userType';
 
+
 const signUpSchema = joi.object<UserBodyData>({
     email: joi.string().email().required(),
     password: joi

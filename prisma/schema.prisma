@@ -27,11 +27,12 @@ model Books {
 }
 
 model UserBook {
-  id     Int   @id @default(autoincrement())
-  userId Int
-  bookId Int
-  book  Books @relation(fields: [bookId], references: [id])
-  user   Users @relation(fields: [userId], references: [id])
+  id         Int   @id @default(autoincrement())
+  userId     Int
+  bookId     Int
+  book       Books @relation(fields: [bookId], references: [id])
+  user       Users @relation(fields: [userId], references: [id])
+  readPages  Int
 
   @@unique([userId, bookId])
   @@map("userBook")

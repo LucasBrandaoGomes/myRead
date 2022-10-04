@@ -38,3 +38,4 @@ export async function newLogin(email:string, password:string) {
     const token = jwt.sign(String(id), secretKey)
     return token
 }
+
