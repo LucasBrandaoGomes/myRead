@@ -1,5 +1,6 @@
 import joi from 'joi'
-import { UserBodyData } from '../types/userType';
+import { UserBodyData, UserSignInBodyData } from '../types/userType';
+
 
 const signUpSchema = joi.object<UserBodyData>({
     email: joi.string().email().required(),
@@ -9,6 +10,9 @@ const signUpSchema = joi.object<UserBodyData>({
     passwordConfirmation: joi.any().valid(joi.ref('password')).required()
   });
 
+const signInSchema = joi.object<UserSignInBodyData>({
+  email: joi.string().email().required(),
+  password: joi.string().required(),
+});
 
-
-export { signUpSchema }
+export { signUpSchema, signInSchema }

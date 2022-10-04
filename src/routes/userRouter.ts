@@ -7,5 +7,6 @@ import { validateSchemaMiddleware } from "../middlewares/validateSchemaMiddlewar
 const userRouter = Router()
 
 userRouter.post('/sign-up', validateSchemaMiddleware(schemas.signUpSchema), controller.signUp)
+userRouter.post('/sign-in', validateSchemaMiddleware(schemas.signInSchema), controller.signIn)
 
 export default userRouter
