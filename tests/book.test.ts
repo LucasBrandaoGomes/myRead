@@ -4,7 +4,7 @@ import { createNewUser } from "../factories/userFactory";
 import app from "../src/app";
 
 describe("Test route GET /books", () => {
-    it("Return list of books and return status 200",async () => {
+    it("Trying to get list of books, without search query param, and return status 200",async () => {
         const newUser = await createNewUser()
         const newLogin = {
             email: newUser.email,
@@ -13,6 +13,22 @@ describe("Test route GET /books", () => {
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
         const result = await supertest(app).get('/books').set('Authorization', 'Bearer ' + signin.text)
+        const bookList = await prisma.books.findMany()
+
+        expect(result.status).toBe(200)
+        expect(bookList).toBeInstanceOf(Array)
+    })
+
+    it("Trying to get list of books, with search query param, and return status 200",async () => {
+        const newUser = await createNewUser()
+        const newLogin = {
+            email: newUser.email,
+            password: "1234",
+        }
+        const search = "murakami"
+        await supertest(app).post('/sign-up').send(newUser);
+        const signin = await supertest(app).post('/sign-in').send(newLogin);
+        const result = await supertest(app).get(`/books?search=${search}`).set('Authorization', 'Bearer ' + signin.text)
         const bookList = await prisma.books.findMany()
 
         expect(result.status).toBe(200)
