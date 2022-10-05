@@ -9,9 +9,31 @@ async function checkUniqueUserBook(userId: number, bookId:number) {
     }
 }
 
+async function getUniqueUserBook(userId:number, bookId:number) {
+    const read = await readsRepository.findUniqueUserBook(userId, bookId)
+    if(read === null){
+        throw { code: "NotFound", message: `Book read not registered`}
+    }
+    return read
+}
+
+async function checkIfUpdateValueIsValid( value:number, totalPages: number,) {
+    if(value<=0 || value>totalPages){
+        throw { code: "Invalid", message: `Invalid page value`}
+    }
+}
+
 export async function inserRead(data:UserBookInsertData) : Promise <void>{
     await checkIfBookRegistered(data.bookId)
     await checkUniqueUserBook(data.userId, data.bookId)
-    
+
     await readsRepository.insertNewRead(data)
+}
+
+export async function updateRead(userId:number, bookId: number, readPages:number) {
+    const book = await checkIfBookRegistered(bookId)
+    const read = await getUniqueUserBook(userId, bookId)
+    await checkIfUpdateValueIsValid(readPages, book.totalPages)
+
+    await readsRepository.updateReadPages(read.id, readPages)
 }
