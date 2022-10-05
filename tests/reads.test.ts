@@ -5,23 +5,22 @@ import jwt from 'jsonwebtoken'
 import { createNewUser } from "../factories/userFactory";
 import * as readsRepository from '../src/repositories/readsRepository'
 
-
 beforeEach(async () => {
     await prisma.$executeRaw`TRUNCATE TABLE "userBook" RESTART IDENTITY`
 })
 
-describe("Test route POST /books/reads", () => {
+describe("Test route POST /books/reads/:id", () => {
     it("Register a new book reading, return status 201",async () => {
         const newUser = await createNewUser()
         const newLogin = {
             email: newUser.email,
             password: "1234",
         }
-        const bookId = 2
+        const bookId = 4
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
         const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
-        const result = await supertest(app).post(`/books/reads`).send({userId:userId, bookId:String(bookId)}).set('Authorization', 'Bearer ' + signin.text)
+        const result = await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
 
         const userRead = await readsRepository.findUniqueUserBook(Number(userId), bookId)
 
@@ -39,8 +38,8 @@ describe("Test route POST /books/reads", () => {
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
         const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
-        await supertest(app).post(`/books/reads`).send({userId:userId, bookId:String(bookId)}).set('Authorization', 'Bearer ' + signin.text)
-        const result = await supertest(app).post(`/books/reads`).send({userId:userId, bookId:String(bookId)}).set('Authorization', 'Bearer ' + signin.text)
+        await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+        const result = await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
 
         expect(result.status).toBe(409)
     })
@@ -56,14 +55,12 @@ describe("Test route POST /books/reads", () => {
         const signin = await supertest(app).post('/sign-in').send(newLogin);
         const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
        
-        const result = await supertest(app).post(`/books/reads`).send({userId:userId, bookId:String(bookId)})
+        const result = await supertest(app).post(`/books/reads/${bookId}`).send({userId:userId, bookId:String(bookId)})
         
         expect(result.status).toBe(401)
     })
-
-    
+   
 })
-
 
 afterAll( async () => {
     await prisma.$disconnect()
