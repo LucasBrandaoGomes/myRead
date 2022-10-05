@@ -32,7 +32,7 @@ model UserBook {
   bookId     Int
   book       Books @relation(fields: [bookId], references: [id])
   user       Users @relation(fields: [userId], references: [id])
-  readPages  Int
+  readPages  Int   @default(0)
 
   @@unique([userId, bookId])
   @@map("userBook")
