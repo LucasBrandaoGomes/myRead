@@ -11,3 +11,14 @@ export async function newRead(req:Request, res: Response) {
 
     res.sendStatus(201)
 }
+
+export async function updateBookRead(req:Request, res: Response) {
+    const userId = res.locals.userId
+    const bookId = req.params.id
+    const { readPages } = res.locals.body
+
+    await readsServices.updateRead(Number(userId),Number(bookId), Number(readPages))
+
+    res.sendStatus(200)
+}
+
