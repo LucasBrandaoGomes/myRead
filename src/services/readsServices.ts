@@ -37,3 +37,7 @@ export async function updateRead(userId:number, bookId: number, readPages:number
 
     await readsRepository.updateReadPages(read.id, readPages)
 }
+
+export async function getUserReadBooks(userid:number) {
+    return await readsRepository.findUserReads(userid)
+}
