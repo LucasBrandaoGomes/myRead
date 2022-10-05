@@ -6,7 +6,7 @@ import userRouter from "./userRouter";
 const router = Router()
 
 router.use(userRouter);
-router.use(bookRouter)
 router.use(readsRouter)
+router.use(bookRouter);
 
 export default router

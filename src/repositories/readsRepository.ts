@@ -35,6 +35,7 @@ export async function findUserReads(userId:number) {
         where: {userId:userId},
         select:{
             userId:true,
+            bookId:true,
             readPages: true,
             book:{
                 select:{
