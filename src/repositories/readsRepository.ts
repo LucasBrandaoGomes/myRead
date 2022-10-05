@@ -5,6 +5,7 @@ import { UserBookInsertData } from "../types/userBookType";
 export async function insertNewRead(data: UserBookInsertData) : Promise <void> {
     await prisma.userBook.create({data})
 }
+
 export async function findUniqueUserBook(userId:number, bookId:number) : Promise < UserBook > {
     const result = await prisma.userBook.findUnique(
         {where: 
@@ -27,4 +28,25 @@ export async function updateReadPages(id:number, value: number) : Promise < void
           readPages: value
         },
       })
+}
+
+export async function findUserReads(userId:number) {
+    const result = await prisma.userBook.findMany({
+        where: {userId:userId},
+        select:{
+            userId:true,
+            bookId:true,
+            readPages: true,
+            book:{
+                select:{
+                    title: true,
+                    author: true,
+                    totalPages:true
+                }
+
+            }
+        }
+    }
+    )
+    return result
 }

@@ -9,5 +9,6 @@ const readsRouter = Router()
 
 readsRouter.post('/books/reads/:id', checkAuthentication, controller.newRead)
 readsRouter.put('/books/reads/:id', checkAuthentication, validateSchemaMiddleware(schemas.uptadeReadSchema), controller.updateBookRead)
+readsRouter.get('/books/reads', checkAuthentication, controller.getUserReads)
 
 export default readsRouter
