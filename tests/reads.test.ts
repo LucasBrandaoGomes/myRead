@@ -91,7 +91,6 @@ describe("Test route PUT /books/reads/:id", () => {
         const readPages = {readPages:50}
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
-        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
         await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
         
         const result = await supertest(app).put(`/books/reads/${bookId}`).send(readPages)
@@ -110,7 +109,6 @@ describe("Test route PUT /books/reads/:id", () => {
         const readPages = {readPages:50}
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
-        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
         await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
         
         const result = await supertest(app).put(`/books/reads/${wrongBookId}`).send(readPages).set('Authorization', 'Bearer ' + signin.text)
@@ -136,6 +134,53 @@ describe("Test route PUT /books/reads/:id", () => {
 
         expect(result.status).toBe(422)
         expect(newValue.readPages).toEqual(0)
+    })
+})
+
+describe("Test route GET /books/reads", () => {
+    it("Trying to get list of user reads, return status 200",async () => {
+        const newUser = await createNewUser()
+        const newLogin = {
+            email: newUser.email,
+            password: "1234",
+        }
+        await supertest(app).post('/sign-up').send(newUser);
+        const signin = await supertest(app).post('/sign-in').send(newLogin);
+        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
+
+        const result = await supertest(app).get('/books/reads').set('Authorization', 'Bearer ' + signin.text)
+        
+        const bookList = await readsRepository.findUserReads(Number(userId))
+
+        expect(result.status).toBe(200)
+        expect(bookList).toBeInstanceOf(Array)
+    })
+
+    it("Trying to get list of user reads, without token, return status 401",async () => {
+        const newUser = await createNewUser()
+        const newLogin = {
+            email: newUser.email,
+            password: "1234",
+        }
+        await supertest(app).post('/sign-up').send(newUser);
+        await supertest(app).post('/sign-in').send(newLogin);
+        const result = await supertest(app).get('/books/reads')
+
+        expect(result.status).toBe(401)
+    })
+
+    it("Trying to get list of user reads, with invalid token, return status 401",async () => {
+        const newUser = await createNewUser()
+        const newLogin = {
+            email: newUser.email,
+            password: "1234",
+        }
+        await supertest(app).post('/sign-up').send(newUser);
+        await supertest(app).post('/sign-in').send(newLogin);
+
+        const result = await supertest(app).get('/books/reads').set('Authorization', 'Bearer ' + 'Inavlid token')
+        
+        expect(result.status).toBe(401)
     })
 })
 
