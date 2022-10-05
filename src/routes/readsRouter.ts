@@ -8,6 +8,6 @@ import { validateSchemaMiddleware } from "../middlewares/validateSchemaMiddlewar
 const readsRouter = Router()
 
 readsRouter.post('/books/reads/:id', checkAuthentication, controller.newRead)
-// readsRouter.put('/books/reads:id', checkAuthentication, validateSchemaMiddleware(schemas.uptadeReadSchema), controller.updateRead)
+readsRouter.put('/books/reads/:id', checkAuthentication, validateSchemaMiddleware(schemas.uptadeReadSchema), controller.updateBookRead)
 
 export default readsRouter
