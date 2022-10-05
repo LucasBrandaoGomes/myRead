@@ -5,23 +5,23 @@ import jwt from 'jsonwebtoken'
 import { createNewUser } from "../factories/userFactory";
 import * as readsRepository from '../src/repositories/readsRepository'
 
-
 beforeEach(async () => {
     await prisma.$executeRaw`TRUNCATE TABLE "userBook" RESTART IDENTITY`
+    await prisma.$executeRaw`TRUNCATE TABLE users RESTART IDENTITY CASCADE`
 })
 
-describe("Test route POST /books/reads", () => {
+describe("Test route POST /books/reads/:id", () => {
     it("Register a new book reading, return status 201",async () => {
         const newUser = await createNewUser()
         const newLogin = {
             email: newUser.email,
             password: "1234",
         }
-        const bookId = 2
+        const bookId = 4
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
         const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
-        const result = await supertest(app).post(`/books/reads`).send({userId:userId, bookId:String(bookId)}).set('Authorization', 'Bearer ' + signin.text)
+        const result = await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
 
         const userRead = await readsRepository.findUniqueUserBook(Number(userId), bookId)
 
@@ -38,9 +38,8 @@ describe("Test route POST /books/reads", () => {
         const bookId = 2
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
-        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
-        await supertest(app).post(`/books/reads`).send({userId:userId, bookId:String(bookId)}).set('Authorization', 'Bearer ' + signin.text)
-        const result = await supertest(app).post(`/books/reads`).send({userId:userId, bookId:String(bookId)}).set('Authorization', 'Bearer ' + signin.text)
+        await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+        const result = await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
 
         expect(result.status).toBe(409)
     })
@@ -54,16 +53,91 @@ describe("Test route POST /books/reads", () => {
         const bookId = 2
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
-        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
        
-        const result = await supertest(app).post(`/books/reads`).send({userId:userId, bookId:String(bookId)})
+        const result = await supertest(app).post(`/books/reads/${bookId}`)
         
         expect(result.status).toBe(401)
     })
-
-    
 })
 
+describe("Test route PUT /books/reads/:id", () => {
+    it("Update read pages, return status 200",async () => {
+        const newUser = await createNewUser()
+        const newLogin = {
+            email: newUser.email,
+            password: "1234",
+        }
+        const bookId = 4
+        const readPages = {readPages:50}
+        await supertest(app).post('/sign-up').send(newUser);
+        const signin = await supertest(app).post('/sign-in').send(newLogin);
+        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
+        await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+        
+        const result = await supertest(app).put(`/books/reads/${bookId}`).send(readPages).set('Authorization', 'Bearer ' + signin.text)
+        const newValue = await readsRepository.findUniqueUserBook(Number(userId), bookId)
+
+        expect(result.status).toBe(200)
+        expect(newValue.readPages).toEqual(readPages.readPages)
+    })
+
+    it("Update read pages without token, return status 401",async () => {
+        const newUser = await createNewUser()
+        const newLogin = {
+            email: newUser.email,
+            password: "1234",
+        }
+        const bookId = 4
+        const readPages = {readPages:50}
+        await supertest(app).post('/sign-up').send(newUser);
+        const signin = await supertest(app).post('/sign-in').send(newLogin);
+        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
+        await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+        
+        const result = await supertest(app).put(`/books/reads/${bookId}`).send(readPages)
+
+        expect(result.status).toBe(401)
+    })
+
+    it("Trying to update read pages of book that user don't read, return status 404",async () => {
+        const newUser = await createNewUser()
+        const newLogin = {
+            email: newUser.email,
+            password: "1234",
+        }
+        const bookId = 4
+        const wrongBookId = 5
+        const readPages = {readPages:50}
+        await supertest(app).post('/sign-up').send(newUser);
+        const signin = await supertest(app).post('/sign-in').send(newLogin);
+        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
+        await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+        
+        const result = await supertest(app).put(`/books/reads/${wrongBookId}`).send(readPages).set('Authorization', 'Bearer ' + signin.text)
+
+        expect(result.status).toBe(404)
+    })
+
+    it("Trying to update read pages with a invalid page value, return status 422",async () => {
+        const newUser = await createNewUser()
+        const newLogin = {
+            email: newUser.email,
+            password: "1234",
+        }
+        const bookId = 4
+        const readPages = {readPages:1000}
+        await supertest(app).post('/sign-up').send(newUser);
+        const signin = await supertest(app).post('/sign-in').send(newLogin);
+        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
+        await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+        
+        const result = await supertest(app).put(`/books/reads/${bookId}`).send(readPages).set('Authorization', 'Bearer ' + signin.text)
+        const newValue = await readsRepository.findUniqueUserBook(Number(userId), bookId)
+
+        expect(result.status).toBe(422)
+        expect(newValue.readPages).toEqual(0)
+    })
+})
 
 afterAll( async () => {
     await prisma.$disconnect()

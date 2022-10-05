@@ -1,4 +1,4 @@
-import joi from 'joi'
+import joi, { number } from 'joi'
 import { UserBookBodyData } from '../types/userBookType';
 import { UserBodyData, UserSignInBodyData } from '../types/userType';
 
@@ -16,9 +16,8 @@ const signInSchema = joi.object<UserSignInBodyData>({
   password: joi.string().required(),
 });
 
-const newReadSchema = joi.object<UserBookBodyData>({
-  userId: joi.string().required(),
-  bookId: joi.string().required(),
-});
+const uptadeReadSchema = joi.object({
+  readPages: joi.number().integer().required()
+})
 
-export { signUpSchema, signInSchema, newReadSchema }
+export { signUpSchema, signInSchema, uptadeReadSchema }
