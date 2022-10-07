@@ -21,18 +21,19 @@ model Books {
   author     String
   title      String     @unique
   totalPages Int
+  synopsis   String
   userBook   UserBook[]
 
   @@map("books")
 }
 
 model UserBook {
-  id         Int   @id @default(autoincrement())
-  userId     Int
-  bookId     Int
-  book       Books @relation(fields: [bookId], references: [id])
-  user       Users @relation(fields: [userId], references: [id])
-  readPages  Int   @default(0)
+  id        Int   @id @default(autoincrement())
+  userId    Int
+  bookId    Int
+  readPages Int   @default(0)
+  book      Books @relation(fields: [bookId], references: [id])
+  user      Users @relation(fields: [userId], references: [id])
 
   @@unique([userId, bookId])
   @@map("userBook")
