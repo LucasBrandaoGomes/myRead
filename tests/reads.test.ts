@@ -68,7 +68,7 @@ describe("Test route PUT /books/reads/:id", () => {
             password: "1234",
         }
         const bookId = 4
-        const readPages = {readPages:50}
+        const readPages = {readPages:"50"}
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
         const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
@@ -78,7 +78,7 @@ describe("Test route PUT /books/reads/:id", () => {
         const newValue = await readsRepository.findUniqueUserBook(Number(userId), bookId)
 
         expect(result.status).toBe(200)
-        expect(newValue.readPages).toEqual(readPages.readPages)
+        expect(newValue.readPages).toEqual(Number(readPages.readPages))
     })
 
     it("Update read pages without token, return status 401",async () => {
@@ -88,7 +88,7 @@ describe("Test route PUT /books/reads/:id", () => {
             password: "1234",
         }
         const bookId = 4
-        const readPages = {readPages:50}
+        const readPages = {readPages:"50"}
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
         await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
@@ -106,7 +106,7 @@ describe("Test route PUT /books/reads/:id", () => {
         }
         const bookId = 4
         const wrongBookId = 5
-        const readPages = {readPages:50}
+        const readPages = {readPages:"50"}
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
         await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
@@ -123,7 +123,7 @@ describe("Test route PUT /books/reads/:id", () => {
             password: "1234",
         }
         const bookId = 4
-        const readPages = {readPages:1000}
+        const readPages = {readPages:"1000"}
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
         const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
@@ -181,6 +181,82 @@ describe("Test route GET /books/reads", () => {
         const result = await supertest(app).get('/books/reads').set('Authorization', 'Bearer ' + 'Inavlid token')
         
         expect(result.status).toBe(401)
+    })
+})
+
+describe("Test route DELETE /books/reads/:id", () => {
+    it("Delete read, return status 200",async () => {
+        const newUser = await createNewUser()
+        const newLogin = {
+            email: newUser.email,
+            password: "1234",
+        }
+        const bookId = 4
+        await supertest(app).post('/sign-up').send(newUser);
+        const signin = await supertest(app).post('/sign-in').send(newLogin);
+        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
+        await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+        
+        const result = await supertest(app).delete(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+        const newValue = await readsRepository.findUniqueUserBook(Number(userId), bookId)
+
+        expect(result.status).toBe(200)
+        expect(newValue).toBe(null)
+    })
+
+    it("Trying to delete read of an unregistered book, return status 404",async () => {
+        const newUser = await createNewUser()
+        const newLogin = {
+            email: newUser.email,
+            password: "1234",
+        }
+        const bookId = 20
+        await supertest(app).post('/sign-up').send(newUser);
+        const signin = await supertest(app).post('/sign-in').send(newLogin);
+        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
+        await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+        
+        const result = await supertest(app).delete(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+
+        expect(result.status).toBe(404)
+    })
+
+    it("Trying to delete read of an unregistered read, return status 404",async () => {
+        const newUser = await createNewUser()
+        const newLogin = {
+            email: newUser.email,
+            password: "1234",
+        }
+        const bookId = 4
+        await supertest(app).post('/sign-up').send(newUser);
+        const signin = await supertest(app).post('/sign-in').send(newLogin);
+        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
+        await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+        
+        const result = await supertest(app).delete(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+        const newValue = await readsRepository.findUniqueUserBook(Number(userId), bookId)
+
+        expect(result.status).toBe(200)
+        expect(newValue).toBe(null)
+    })
+
+    it("Trying to delete read without token, return status 401",async () => {
+        const newUser = await createNewUser()
+        const newLogin = {
+            email: newUser.email,
+            password: "1234",
+        }
+        const bookId = 4
+        await supertest(app).post('/sign-up').send(newUser);
+        const signin = await supertest(app).post('/sign-in').send(newLogin);
+        const userId = jwt.verify(signin.text, process.env.JWT_SECRET);
+        await supertest(app).post(`/books/reads/${bookId}`).set('Authorization', 'Bearer ' + signin.text)
+        
+        const result = await supertest(app).delete(`/books/reads/${bookId}`)
+        const newValue = await readsRepository.findUniqueUserBook(Number(userId), bookId)
+
+        expect(result.status).toBe(401)
+        expect(newValue).toBeInstanceOf(Object)
     })
 })
 
