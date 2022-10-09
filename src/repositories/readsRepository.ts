@@ -34,6 +34,7 @@ export async function findUserReads(userId:number) {
     const result = await prisma.userBook.findMany({
         where: {userId:userId},
         select:{
+            id:true,
             userId:true,
             bookId:true,
             readPages: true,
@@ -41,7 +42,8 @@ export async function findUserReads(userId:number) {
                 select:{
                     title: true,
                     author: true,
-                    totalPages:true
+                    totalPages:true,
+                    synopsis:true
                 }
 
             }
