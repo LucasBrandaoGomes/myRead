@@ -6,7 +6,12 @@ import router from "./routes";
 
 const app = express()
 
-app.use(cors())
+const corsOptions = {
+    origin: '*',
+    optionsSuccessStatus: 200
+  }
+  
+app.use(cors(corsOptions));
 app.use(json())
 app.use(router)
 app.use(errorHandlerMiddleware)
