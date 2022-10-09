@@ -41,3 +41,10 @@ export async function updateRead(userId:number, bookId: number, readPages:number
 export async function getUserReadBooks(userid:number) {
     return await readsRepository.findUserReads(userid)
 }
+
+export async function deleteOneRead(userId:number, bookId:number) {
+    await checkIfBookRegistered(bookId)
+    const read = await getUniqueUserBook(userId, bookId)
+
+    await readsRepository.deleteReadById(Number(read.id))
+}
