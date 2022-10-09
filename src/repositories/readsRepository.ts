@@ -52,3 +52,7 @@ export async function findUserReads(userId:number) {
     )
     return result
 }
+
+export async function deleteReadById(id:number) {
+    await prisma.userBook.delete({where:{id:id}})
+}
