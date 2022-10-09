@@ -29,3 +29,12 @@ export async function getUserReads(req:Request, res: Response) {
 
     res.status(200).send(result)
 }
+
+export async function deleteRead(req:Request, res: Response) {
+    const userId = res.locals.userId
+    const bookId = req.params.id
+
+    await readsServices.deleteOneRead(Number(userId), Number(bookId))
+
+    res.sendStatus(200)
+}
