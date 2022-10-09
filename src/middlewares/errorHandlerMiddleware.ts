@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-//import HttpException from '../exceptions/HttpException.js';
 
 export default function errorHandlerMiddleware(error, req: Request, res: Response, next: NextFunction) {
 	const { code, message } = error;
@@ -19,6 +18,5 @@ export default function errorHandlerMiddleware(error, req: Request, res: Respons
   if(code === "Forbidden"){
     return res.status(403).send(message)
   }
-  console.log(message)
   return res.status(500).send('Internal server error')
 }

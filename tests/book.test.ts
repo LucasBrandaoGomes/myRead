@@ -12,7 +12,7 @@ describe("Test route GET /books", () => {
         }
         await supertest(app).post('/sign-up').send(newUser);
         const signin = await supertest(app).post('/sign-in').send(newLogin);
-        const result = await supertest(app).get('/books').set('Authorization', 'Bearer ' + signin.text)
+        const result = await supertest(app).get(`/books`).set('Authorization', 'Bearer ' + signin.text)
         const bookList = await prisma.books.findMany()
 
         expect(result.status).toBe(200)
