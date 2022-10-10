@@ -3,11 +3,12 @@ import bcrypt from "bcrypt";
 import  jwt  from 'jsonwebtoken';
 import { Users } from '@prisma/client';
 
-async function checkIfEmailRegistered(email:string) {
+export async function checkIfEmailRegistered(email:string) {
     const result = await userRepository.findUserByEmail(email)
     if(result){
         throw { code: "Conflict", message: "Email already registered"}
     }
+    return result
 }
 
 function checkIfUserExists(result: Users) {
