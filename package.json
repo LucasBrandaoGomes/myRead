@@ -2,7 +2,7 @@
   "name": "myread-back",
   "version": "1.0.0",
   "description": "",
-  "main":"server.js",
+  "main": "server.js",
   "scripts": {
     "test": "dotenv -e .env.test prisma migrate dev &&  dotenv -e .env.test npx prisma generate && dotenv -e .env.test prisma db seed && dotenv -e .env.test jest",
     "build": "tsc && npx prisma generate && npx prisma migrate deploy && npx prisma db seed",
@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^4.4.0",
     "axios": "^0.27.2",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
@@ -28,7 +29,6 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.5.0",
-    "@prisma/client": "^4.4.0",
     "@types/bcrypt": "^5.0.0",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.14",
